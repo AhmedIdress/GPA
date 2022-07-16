@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gpacalculate/components/constants.dart';
+import 'package:gpacalculate/logic/main_logic.dart';
+import 'package:provider/provider.dart';
+
 class MainScreen extends StatelessWidget {
   const MainScreen({Key? key}) : super(key: key);
 
@@ -17,11 +20,21 @@ class MainScreen extends StatelessWidget {
         padding: const EdgeInsets.only(left: 16, right: 16, bottom: 10),
         child: ListView.separated(
           physics: const BouncingScrollPhysics(),
-          itemCount: title.length,
+          itemCount: context.watch<MainLogic>().gpaList.length,
           separatorBuilder: (context, index) => const SizedBox(),
           itemBuilder: (BuildContext context, int index) => InkWell(
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context)=>screens[index]));
+              context.read<MainLogic>().currentSemester = index;
+              context.read<MainLogic>().getSemester(index);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    context.read<MainLogic>().fillSemesterCourse();
+                    return screens[index];
+                  },
+                ),
+              );
             },
             child: Container(
               height: 150,
@@ -63,7 +76,11 @@ class MainScreen extends StatelessWidget {
                             height: 3,
                           ),
                           Text(
-                            '0',
+                            context
+                                .watch<MainLogic>()
+                                .gpaList[index]
+                                .hours!
+                                .toStringAsFixed(0),
                             style: subTitleStyle,
                           ),
                         ],
@@ -78,7 +95,9 @@ class MainScreen extends StatelessWidget {
                             height: 3,
                           ),
                           Text(
-                            '3.0',
+                            (context.watch<MainLogic>().gpaList[index].gpa ??
+                                    0.0)
+                                .toStringAsFixed(0),
                             style: subTitleStyle,
                           ),
                         ],
@@ -93,7 +112,11 @@ class MainScreen extends StatelessWidget {
                             height: 3,
                           ),
                           Text(
-                            '20',
+                            context
+                                .watch<MainLogic>()
+                                .gpaList[index]
+                                .points!
+                                .toStringAsFixed(0),
                             style: subTitleStyle,
                           ),
                         ],

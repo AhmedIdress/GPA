@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gpacalculate/components/components.dart';
 
 import '../../../components/constants.dart';
 class Semester41Screen  extends StatelessWidget {
@@ -11,7 +12,7 @@ class Semester41Screen  extends StatelessWidget {
         title: Text(titleScreens[1],
           style:appBarStyle),
       ),
-      body: null,
+      body: BuildSemester(),
     );
   }
 }
