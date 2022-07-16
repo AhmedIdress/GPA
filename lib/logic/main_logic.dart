@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gpacalculate/components/constants.dart';
 import 'package:gpacalculate/data/data_helper.dart';
 import 'package:gpacalculate/model/gpa_model.dart';
+import 'package:gpacalculate/model/semester_item_model.dart';
 
 class MainLogic extends ChangeNotifier {
   final DatabaseHelper _databaseHelper = DatabaseHelper.instance;
@@ -11,8 +13,12 @@ class MainLogic extends ChangeNotifier {
   double points = 000;
   List<GpaModel> _gpaList = [];
   List<GpaModel> get gpaList => _gpaList;
+  List<SemesterItemModel> get semesters => _semesters;
+  List<SemesterItemModel> _semesters = [];
+  GpaModel? _getOneGpa;
+  GpaModel? get getOneGpa => _getOneGpa;
   MainLogic() {
-    _gpaList = getAllRows();
+    getAllRows();
   }
   void changeGPA(id, double hour, double point) {
     this.id = id;
@@ -24,15 +30,17 @@ class MainLogic extends ChangeNotifier {
   }
 
   void update() {
-    _databaseHelper.updateDatabase(
+    _databaseHelper
+        .updateDatabase(
       GpaModel(id, hours, points, gpa),
-    ).then((value) {
-      _gpaList = getAllRows();
+    )
+        .then((value) {
+      getAllRows();
     });
     notifyListeners();
   }
 
-  GpaModel? getRow() {
+  void getRow() {
     GpaModel? gpaModel;
     _databaseHelper.getDatabaseRow(id).then((value) {
       if (value == null) {
@@ -42,21 +50,143 @@ class MainLogic extends ChangeNotifier {
         gpaModel = GpaModel.fromJson(value);
       }
     });
+    _getOneGpa = gpaModel;
     notifyListeners();
-    return gpaModel;
   }
 
-  List<GpaModel> getAllRows() {
-    List<GpaModel> allGpa = [];
-    _databaseHelper.getAllDatabaseRows().then((value) {
-      print('get rows in main logic / then');
-      print(value);
-      for (var element in value) {
-        allGpa.add(GpaModel.fromJson(element),);
-      }
-    });
-    print('get rows in main logic');
+  void getAllRows() async {
+    List<Map<String, dynamic>> allGpa =
+        await _databaseHelper.getAllDatabaseRows();
+    //print('get rows in main logic');
+    _gpaList = allGpa.map((e) => GpaModel.fromJson(e)).toList();
+    //print(allGpa);
     notifyListeners();
-    return allGpa;
+  }
+
+  ////semester part
+
+  final Map<String, String> _dropGrades = {
+    'drop1': 'C',
+    'drop2': 'C',
+    'drop3': 'C',
+    'drop4': 'C',
+    'drop5': 'C',
+    'drop6': 'C',
+    'drop7': 'C',
+    'drop8': 'C',
+    'drop9': 'C',
+  };
+  Map<String, String> get dropGrades => _dropGrades;
+  List<TextEditingController> _hourController = List.generate(
+    9,
+    (index) => TextEditingController(),
+  );
+  List<TextEditingController> get hourController => _hourController;
+
+  void calculate() async {
+    int counter = 0;
+    id = currentSemester;
+    points = 0;
+    gpa = 0;
+    hours = 0;
+    _semesters = [];
+    hourController.forEach((e) {
+      double hour = double.parse(e.text);
+      hours += hour;
+      String? gradeString = dropGrades['drop${counter + 1}'];
+      double grade = listTitleGrade[gradeString] ?? 0;
+      points += (grade * hour);
+      _semesters.add(
+        SemesterItemModel(counter, hour, gradeString, currentSemester),
+      );
+      counter++;
+    });
+    gpa = points / hours;
+    insertSemester();
+    update();
+    notifyListeners();
+  }
+
+  void change(String value, int index) {
+    _dropGrades['drop${index + 1}'] = value;
+    notifyListeners();
+  }
+
+  //////////////////////semester data
+
+  void getSemester(int gpaId) async {
+    _semesters = [];
+    var semi = await _databaseHelper.getSemester(gpaId);
+    semi.forEach((element) {
+      _semesters.add(
+        SemesterItemModel.fromJson(element),
+      );
+     /* print(
+        '${element['id']},${element['credit']},${element['grade']},${element['gpaId']}',
+      );*/
+    });
+    /*semesters.forEach((element) {
+       print(
+        '${element.id},${element.credit},${element.grade},${element.gpaId}',
+      );
+    });*/
+    notifyListeners();
+  }
+
+  void insertSemester() {
+    semesters.forEach((e) async {
+      await _databaseHelper.insertSemester(e);
+    });
+    getSemester(currentSemester);
+    print(semesters.length);
+    semesters.forEach((element) {
+      print(
+        '${element.id},${element.credit},${element.grade},${element.gpaId}',
+      );
+    });
+    notifyListeners();
+  }
+
+  /*void updateSemester() {
+    var semiList = semesters;
+    semiList.forEach((element) {
+      _databaseHelper
+          .updateSemester(
+        SemesterItemModel(
+          element.id,
+          element.credit,
+          element.grade,
+          element.gpaId,
+        ),
+      )
+          .then((value) {
+        getSemester(currentSemester);
+      });
+    });
+    notifyListeners();
+  }*/
+  void fillSemesterCourse() {
+    /*print(semesters.length);
+    for (var element in semesters) {
+      print(
+        '${element.id},${element.credit},${element.grade},${element.gpaId}',
+      );
+    }*/
+    if (semesters.isEmpty) {
+      _hourController = List.generate(
+        9,
+            (index) => TextEditingController(),
+      );
+      for (int i = 0; i < hourController.length; i++) {
+        _dropGrades['drop${i + 1}'] = 'C';
+      }
+    }
+    else
+    {
+      for (int i = 0; i < hourController.length; i++) {
+        _hourController[i].text = semesters[i].credit.toString();
+        _dropGrades['drop${i + 1}'] = semesters[i].grade.toString();
+      }
+    }
   }
 }

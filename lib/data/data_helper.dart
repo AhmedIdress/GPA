@@ -1,4 +1,5 @@
 import 'package:gpacalculate/model/gpa_model.dart';
+import 'package:gpacalculate/model/semester_item_model.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -22,6 +23,9 @@ class DatabaseHelper {
       onCreate: (db, version) async {
         await db.execute(
             'CREATE TABLE Gpa (id INTEGER PRIMARY KEY, hours REAL, points REAL, gpa REAL)');
+        await db.execute(
+            'CREATE TABLE Semester (id INTEGER PRIMARY KEY AUTOINCREMENT, credit REAL, '
+                'grade text, gpaId INTEGER)');/*, FOREIGN KEY (gpaId)REFERENCES Gpa (id))*/
         _database = db;
         for (int i = 0; i < 13; i++) {
           GpaModel gpaModel = GpaModel(i, 0, 0, 0);
@@ -40,6 +44,15 @@ class DatabaseHelper {
     );
   }
 
+  Future<void> insertSemester(SemesterItemModel semester) async {
+    var db = await database;
+    await db.insert(
+      'Semester',
+      semester.toJson(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    ).then((value) {print(value);}).catchError((error){print(error.toString());});
+  }
+
   Future<void> updateDatabase(GpaModel gpaModel) async {
     var db = await database;
     await db.update(
@@ -48,6 +61,17 @@ class DatabaseHelper {
       where: 'id=?',
       whereArgs: [
         gpaModel.id,
+      ],
+    );
+  }
+  Future<void> updateSemester(SemesterItemModel semesterItemModel) async {
+    var db = await database;
+    await db.update(
+      'Semester',
+      semesterItemModel.toJson(),
+      where: 'id=?',
+      whereArgs: [
+        semesterItemModel.id,
       ],
     );
   }
@@ -78,6 +102,24 @@ class DatabaseHelper {
     if (list.isEmpty) {
       return [];
     } else {
+      return list;
+    }
+  }
+  Future<List<Map<String, dynamic>>> getSemester(int gpaId) async {
+    var db = await database;
+
+    List<Map<String, dynamic>> list = await db.query(
+      'Semester',
+      where: 'gpaId=?',
+      whereArgs: [
+        gpaId,
+      ],
+    ).catchError((onError){print(onError.toString(),);});
+    if (list.isEmpty) {
+      //print('null');
+      return [];
+    } else {
+      //print(list.length.toString()+' semester length');
       return list;
     }
   }
