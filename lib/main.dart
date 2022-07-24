@@ -1,7 +1,7 @@
 import 'package:gpacalculate/components/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:gpacalculate/logic/main_logic.dart';
-import 'package:gpacalculate/screens/main_screen.dart';
+import 'package:gpacalculate/screens/splash_screen.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -42,7 +42,7 @@ class MyApp extends StatelessWidget {
           },
         ),
       ),
-      home: const MainScreen(),
+      home: const SplashScreen(),
     );
   }
 }
