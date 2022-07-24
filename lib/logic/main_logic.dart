@@ -66,15 +66,15 @@ class MainLogic extends ChangeNotifier {
   ////semester part
 
   final Map<String, String> _dropGrades = {
-    'drop1': 'C',
-    'drop2': 'C',
-    'drop3': 'C',
-    'drop4': 'C',
-    'drop5': 'C',
-    'drop6': 'C',
-    'drop7': 'C',
-    'drop8': 'C',
-    'drop9': 'C',
+    'drop1': 'Value',
+    'drop2': 'Value',
+    'drop3': 'Value',
+    'drop4': 'Value',
+    'drop5': 'Value',
+    'drop6': 'Value',
+    'drop7': 'Value',
+    'drop8': 'Value',
+    'drop9': 'Value',
   };
   Map<String, String> get dropGrades => _dropGrades;
   List<TextEditingController> _hourController = List.generate(
@@ -91,7 +91,7 @@ class MainLogic extends ChangeNotifier {
     hours = 0;
     _semesters = [];
     hourController.forEach((e) {
-      double hour = double.parse(e.text);
+      double hour = double.parse(e.text==''?'0.0':e.text);
       hours += hour;
       String? gradeString = dropGrades['drop${counter + 1}'];
       double grade = listTitleGrade[gradeString] ?? 0;
@@ -101,7 +101,9 @@ class MainLogic extends ChangeNotifier {
       );
       counter++;
     });
-    gpa = points / hours;
+    if(hours!=0){
+      gpa = points / hours;
+    }
     insertSemester();
     update();
     notifyListeners();
@@ -114,17 +116,17 @@ class MainLogic extends ChangeNotifier {
 
   //////////////////////semester data
 
-  void getSemester(int gpaId) async {
+  Future<void> getSemester(int gpaId) async {
     _semesters = [];
     var semi = await _databaseHelper.getSemester(gpaId);
-    semi.forEach((element) {
+    for (var element in semi) {
       _semesters.add(
         SemesterItemModel.fromJson(element),
       );
-     /* print(
+      print(
         '${element['id']},${element['credit']},${element['grade']},${element['gpaId']}',
-      );*/
-    });
+      );
+    }
     /*semesters.forEach((element) {
        print(
         '${element.id},${element.credit},${element.grade},${element.gpaId}',
@@ -166,27 +168,31 @@ class MainLogic extends ChangeNotifier {
     notifyListeners();
   }*/
   void fillSemesterCourse() {
-    /*print(semesters.length);
-    for (var element in semesters) {
-      print(
-        '${element.id},${element.credit},${element.grade},${element.gpaId}',
-      );
-    }*/
-    if (semesters.isEmpty) {
-      _hourController = List.generate(
-        9,
-            (index) => TextEditingController(),
-      );
-      for (int i = 0; i < hourController.length; i++) {
-        _dropGrades['drop${i + 1}'] = 'C';
+    getSemester(currentSemester).then((value) {
+      print(semesters.length);
+      for (var element in semesters) {
+        print(
+          '${element.id},${element.credit},${element.grade},${element.gpaId}',
+        );
       }
-    }
-    else
-    {
-      for (int i = 0; i < hourController.length; i++) {
-        _hourController[i].text = semesters[i].credit.toString();
-        _dropGrades['drop${i + 1}'] = semesters[i].grade.toString();
+      if (semesters.isEmpty) {
+        _hourController = List.generate(
+          9,
+              (index) => TextEditingController(),
+        );
+        for (int i = 0; i < hourController.length; i++) {
+          _dropGrades['drop${i + 1}'] = 'Value';
+        }
       }
-    }
+      else
+      {
+        print('object');
+        for (int i = 0; i < hourController.length; i++) {
+          _hourController[i].text = semesters[i].credit.toString();
+          _dropGrades['drop${i + 1}'] = semesters[i].grade.toString();
+        }
+      }
+    });
+
   }
 }

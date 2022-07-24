@@ -116,6 +116,7 @@ List<Widget> drawerWidgets = const [
   GpaCalculator(),
 ];
 List<String> listTitle = [
+  'Value',
   'A+',
   'A',
   'A-',
@@ -143,4 +144,5 @@ Map<String,double> listTitleGrade =
   'D+':1.3,
   'D':1.0,
   'F':0.0,
+  'Value':0.0,
 };
