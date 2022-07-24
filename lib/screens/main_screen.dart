@@ -25,7 +25,7 @@ class MainScreen extends StatelessWidget {
           itemBuilder: (BuildContext context, int index) => InkWell(
             onTap: () {
               context.read<MainLogic>().currentSemester = index;
-              context.read<MainLogic>().getSemester(index);
+              /*context.read<MainLogic>().getSemester(index);*/
               Navigator.push(
                 context,
                 MaterialPageRoute(

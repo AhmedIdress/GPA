@@ -73,13 +73,14 @@ class BuildSemester extends StatelessWidget {
                     buildRowItems(
                       'Course ${index + 1}',
                       context.watch<MainLogic>().hourController[index],
+                      context,
                     ),
-                    const SizedBox(
-                      width: 50,
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width*.12,
                     ),
                     Container(
                       padding: const EdgeInsets.only(left: 7),
-                      width: 50,
+                      width: MediaQuery.of(context).size.width*.2,
                       height: 35,
                       decoration: BoxDecoration(
                           border: Border.all(width: 1, color: Colors.grey),
@@ -94,6 +95,7 @@ class BuildSemester extends StatelessWidget {
                               child: Center(
                                   child: Text(
                                 t,
+                                overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
                                     fontSize: 13, color: Colors.black),
                               )),
@@ -227,19 +229,20 @@ class BuildSemester extends StatelessWidget {
   Row buildRowItems(
     title,
     controller,
+    context,
   ) {
     return Row(
       children: [
-        const SizedBox(
-          width: 20,
+        SizedBox(
+          width: MediaQuery.of(context).size.width*.045,
         ),
         Text(
           title,
           style: titleSmallStyle.copyWith(
               fontSize: 18, color: Colors.black87, fontStyle: FontStyle.italic),
         ),
-        const SizedBox(
-          width: 50,
+        SizedBox(
+          width: MediaQuery.of(context).size.width*.1,
         ),
         SizedBox(
           width: 65,
