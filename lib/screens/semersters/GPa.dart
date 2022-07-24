@@ -8,7 +8,7 @@ import '../../components/components.dart';
 class GPAScreen extends StatelessWidget {
   final hoursController = TextEditingController();
   final pointsController = TextEditingController();
-  var formKey = GlobalKey<FormState>();
+  final  formKey = GlobalKey<FormState>();
   GPAScreen({Key? key}) : super(key: key);
 
   @override
@@ -24,9 +24,17 @@ class GPAScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
           child: ListView(
             children: [
-              Text(
-                "Total Hours",
-                style: subTitleStyle.copyWith(color: Colors.black),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    "Total Hours",
+                    style: subTitleStyle.copyWith(color: Colors.black),
+                  ),
+                  const SizedBox(width: 10,),
+                  Text("All hours in previous semesters",style:
+                  textStyle(),)
+                ],
               ),
               const SizedBox(
                 height: 10,
@@ -43,9 +51,17 @@ class GPAScreen extends StatelessWidget {
               const SizedBox(
                 height: 20,
               ),
-              Text(
-                "Total Points",
-                style: subTitleStyle.copyWith(color: Colors.black),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    "Total Points",
+                    style: subTitleStyle.copyWith(color: Colors.black),
+                  ),
+                 const SizedBox(width: 10,),
+                  Text("All points in previous semesters",style:
+                    textStyle(),)
+                ],
               ),
               const SizedBox(
                 height: 10,
@@ -136,5 +152,9 @@ class GPAScreen extends StatelessWidget {
           ),
         ),
       );
+  }
+  TextStyle textStyle(){
+    return TextStyle(fontSize: 14,fontWeight: FontWeight.w400
+        ,fontStyle: FontStyle.italic,color: Colors.grey[700]);
   }
 }
